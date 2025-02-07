@@ -3,6 +3,7 @@ package com.karenqvistlarsen.ecom_proj.unit;
 import com.karenqvistlarsen.ecom_proj.model.Product;
 import com.karenqvistlarsen.ecom_proj.repository.ProductRepository;
 import com.karenqvistlarsen.ecom_proj.service.ProductService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +17,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -26,92 +27,113 @@ class ProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private MultipartFile imageFile;
+    private Product product;
 
-    @Test
-    void shouldAddProductWithImage() throws IOException {
-        // Arrange: Prepare a product and mock repository behavior
+    @BeforeEach
+    void setup() throws IOException {
         Date date = new Date();
-        Product product = new Product(1, "Laptop", "Gaming Laptop", "Dell",
+        product = new Product(1, "Laptop", "Gaming Laptop", "Dell",
                 new BigDecimal("1200.00"), "Electronics", date,
-                true, 10, "image.jpg", "image/jpeg", new byte[]{});
+                true, 10, "image.jpg", "image/jpeg", new byte[]{1, 2, 3, 4});
 
-        // mock image
+        // mock image behavior
         byte[] imageData = new byte[]{1, 2, 3, 4};
-        String fileName = "newImage.jpg";
-        String contentType = "image/png";
+        String fileName = "image.jpg";
+        String contentType = "image/jpeg";
 
         when(imageFile.getBytes()).thenReturn(imageData);
         when(imageFile.getOriginalFilename()).thenReturn(fileName);
         when(imageFile.getContentType()).thenReturn(contentType);
-        when(productRepository.save(product)).thenReturn(product);
+    }
 
-        Product addedProduct = productService.addProduct(product, imageFile);
 
-        assertThat(addedProduct).isNotNull();
-        assertThat(addedProduct.getName()).isEqualTo("Laptop");
-        assertThat(addedProduct.getId()).isEqualTo(1);
-        assertThat(addedProduct.getImageName()).isEqualTo(fileName);
-        assertThat(addedProduct.getImageType()).isEqualTo(contentType);
-        assertThat(addedProduct.getImageData()).isEqualTo(imageData);
+    @Test
+    void shouldAddProductWithImage() {
+        // assert product is correctly saved and returned
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Optional<Product> addedProduct = productService.addProduct(product, imageFile);
+
+        assertThat(addedProduct)
+                .withFailMessage("Expected product to be present, but it was empty")
+                .isPresent();
+
+        Product resultProduct = addedProduct.get();
+
+        assertThat(resultProduct.getId()).isEqualTo(1);
+        assertThat(resultProduct.getName()).isEqualTo("Laptop");
+        assertThat(resultProduct.getDescription()).isEqualTo("Gaming Laptop");
+        assertThat(resultProduct.getBrand()).isEqualTo("Dell");
+        assertThat(resultProduct.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
+        assertThat(resultProduct.getCategory()).isEqualTo("Electronics");
+        assertThat(resultProduct.isProductAvailable()).isTrue();
+        assertThat(resultProduct.getStockQuantity()).isEqualTo(10);
+        assertThat(resultProduct.getImageName()).isEqualTo("image.jpg");
+        assertThat(resultProduct.getImageType()).isEqualTo("image/jpeg");
+        assertThat(resultProduct.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
+    }
+
+
+    @Test
+    void shouldAddAndUpdateProductWithImage() {
+        // mock repo findById method to return existing product
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+
+        // assert product is correctly saved, updated and returned
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        Optional<Product> updatedProduct = productService.updateProduct(product.getId(), imageFile);
+
+        assertThat(updatedProduct)
+                .withFailMessage("Expected product to be present, but it was empty")
+                .isPresent();
+
+        Product resultProduct = updatedProduct.get();
+
+        assertThat(resultProduct.getId()).isEqualTo(1);
+        assertThat(resultProduct.getName()).isEqualTo("Laptop");
+        assertThat(resultProduct.getDescription()).isEqualTo("Gaming Laptop");
+        assertThat(resultProduct.getBrand()).isEqualTo("Dell");
+        assertThat(resultProduct.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
+        assertThat(resultProduct.getCategory()).isEqualTo("Electronics");
+        assertThat(resultProduct.isProductAvailable()).isTrue();
+        assertThat(resultProduct.getStockQuantity()).isEqualTo(10);
+        assertThat(resultProduct.getImageName()).isEqualTo("image.jpg");
+        assertThat(resultProduct.getImageType()).isEqualTo("image/jpeg");
+        assertThat(resultProduct.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
     }
 
     @Test
-    void shouldUpdateProductWithImage() throws IOException {
-        // Arrange
-        Date date = new Date();
-        Product product = new Product(1, "Laptop", "Gaming Laptop", "Dell",
-                new BigDecimal("1200.00"), "Electronics", date,
-                true, 10, "image.jpg", "image/jpeg", new byte[]{});
+    void shouldAddAndDeleteProduct() {
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Optional<Product> addedProduct = productService.addProduct(product, imageFile);
 
-        // Mocking the MultipartFile to return some image data
-        byte[] imageData = new byte[]{1, 2, 3, 4};  // Sample byte array for image
-        String fileName = "newImage.jpg";
-        String contentType = "image/png";
+        assertThat(addedProduct)
+                .withFailMessage("Expected product to be present, but it was empty")
+                .isPresent();
 
-        when(imageFile.getBytes()).thenReturn(imageData);
-        when(imageFile.getOriginalFilename()).thenReturn(fileName);
-        when(imageFile.getContentType()).thenReturn(contentType);
+        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        doNothing().when(productRepository).deleteById(1);
 
-        when(productRepository.save(product)).thenReturn(product);
-        Product updatedProduct = productService.updateProduct(product, imageFile);
+        Optional<Product> deletedProduct = productService.deleteProduct(1);
 
-        assertThat(updatedProduct).isNotNull();
-        assertThat(updatedProduct.getImageData()).isEqualTo(imageData);
-        assertThat(updatedProduct.getImageName()).isEqualTo(fileName);
-        assertThat(updatedProduct.getImageType()).isEqualTo(contentType);
-    }
+        assertThat(deletedProduct)
+                .withFailMessage("Expected product to be present, but it was empty")
+                .isPresent();
 
-    @Test
-    void shouldAddAndDeleteProduct() throws IOException {
-        // Arrange: Prepare a product and mock repository behavior
-        Date date = new Date();
-        Product product = new Product(1, "Laptop", "Gaming Laptop", "Dell",
-                new BigDecimal("1200.00"), "Electronics", date,
-                true, 10, "image.jpg", "image/jpeg", new byte[]{});
+        Product resultDeletedProduct = deletedProduct.get();
+        Product resultAddedProduct = deletedProduct.get();
 
-        // mock image
-        byte[] imageData = new byte[]{1, 2, 3, 4};
-        String fileName = "newImage.jpg";
-        String contentType = "image/png";
-
-        when(imageFile.getBytes()).thenReturn(imageData);
-        when(imageFile.getOriginalFilename()).thenReturn(fileName);
-        when(imageFile.getContentType()).thenReturn(contentType);
-        when(productRepository.save(product)).thenReturn(product);
-
-        // add product and assert
-        Product addedProduct = productService.addProduct(product, imageFile);
-
-        assertThat(addedProduct).isNotNull();
-        assertThat(addedProduct.getName()).isEqualTo("Laptop");
-        assertThat(addedProduct.getId()).isEqualTo(1);
-
-        // delete product and assert
-        productService.deleteProduct(1);
-        when(productRepository.findById(1)).thenReturn(Optional.empty());
-
-        Product deletedProduct = productService.getProductById(1);
-        assertThat(deletedProduct).isNull();
+        // assert that deleted product is equal to added product
+        assertThat(resultDeletedProduct.getId()).isEqualTo(resultAddedProduct.getId());
+        assertThat(resultDeletedProduct.getName()).isEqualTo(resultAddedProduct.getName());
+        assertThat(resultDeletedProduct.getDescription()).isEqualTo(resultAddedProduct.getDescription());
+        assertThat(resultDeletedProduct.getBrand()).isEqualTo(resultAddedProduct.getBrand());
+        assertThat(resultDeletedProduct.getPrice()).isEqualTo(resultAddedProduct.getPrice());
+        assertThat(resultDeletedProduct.getCategory()).isEqualTo(resultAddedProduct.getCategory());
+        assertThat(resultDeletedProduct.isProductAvailable()).isEqualTo(resultAddedProduct.isProductAvailable());
+        assertThat(resultDeletedProduct.getStockQuantity()).isEqualTo(resultAddedProduct.getStockQuantity());
+        assertThat(resultDeletedProduct.getImageName()).isEqualTo(resultAddedProduct.getImageName());
+        assertThat(resultDeletedProduct.getImageType()).isEqualTo(resultAddedProduct.getImageType());
+        assertThat(resultDeletedProduct.getImageData()).isEqualTo(resultAddedProduct.getImageData());
     }
 }
 
