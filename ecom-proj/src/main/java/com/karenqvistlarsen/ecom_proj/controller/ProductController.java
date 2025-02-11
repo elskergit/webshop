@@ -35,7 +35,7 @@ public class ProductController {
 
     @GetMapping("/product/{id}/image")
     public ResponseEntity<byte[]> getImageByProductId(@PathVariable int id) {
-        return service.deleteProduct(id)
+        return service.getProductById(id)
                 .map(productDTO -> ResponseEntity.ok()
                         .contentType(MediaType.valueOf(productDTO.getImageType()))
                         .body(productDTO.getImageData()))
@@ -46,7 +46,7 @@ public class ProductController {
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable int id,
                                                  @RequestPart ProductDTO productDTO,
                                                  @RequestPart(required = false) MultipartFile imageFile) {
-        return service.deleteProduct(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return service.updateProduct(id, imageFile).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/product/{id}")
