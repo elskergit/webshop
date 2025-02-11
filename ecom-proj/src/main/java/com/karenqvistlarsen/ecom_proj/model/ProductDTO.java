@@ -20,7 +20,7 @@ public class ProductDTO {
     private String category;
     private Date releaseDate;
     private boolean productAvailable;
-    private int count;
+    private int stockQuantity;
     private String imageName;
     private String imageType;
     @Lob

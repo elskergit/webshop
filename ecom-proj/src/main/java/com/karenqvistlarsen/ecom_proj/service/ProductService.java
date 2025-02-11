@@ -41,11 +41,9 @@ public class ProductService {
             productDTO.setImageType(imageFile.getContentType());
             productDTO.setImageData(imageFile.getBytes());
 
-            // convert and save entity
             Product product = productDTOMapper.productDTOToProduct(productDTO);
             Product savedProduct = repo.save(product);
 
-            // convert back to DTO and return
             ProductDTO savedProductDTO = productDTOMapper.productToProductDTO(savedProduct);
 
             return Optional.of(savedProductDTO);
@@ -64,11 +62,9 @@ public class ProductService {
             existingProductDTO.setImageType(imageFile.getContentType());
             existingProductDTO.setImageData(imageFile.getBytes());
 
-            // convert DTO to entity and save updated product
             Product updatedProduct = productDTOMapper.productDTOToProduct(existingProductDTO);
             Product savedProduct = repo.save(updatedProduct);
 
-            // convert back to DTO and return
             return Optional.of(productDTOMapper.productToProductDTO(savedProduct));
         } catch (IOException e) {
             throw new FileProcessingException("File processing error: " + e.getMessage(), e);

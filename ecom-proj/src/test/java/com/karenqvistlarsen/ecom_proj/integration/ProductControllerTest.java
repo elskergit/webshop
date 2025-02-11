@@ -35,7 +35,7 @@ class ProductControllerTest {
             "category": "Electronics",
             "releaseDate": "2024-01-01",
             "productAvailable": true,
-            "stockQuantity": 10
+            "count": 10
         }
         """;
 

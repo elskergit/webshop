@@ -77,7 +77,7 @@ class ProductServiceTest {
         assertThat(resultProductDTO.getPrice()).isEqualByComparingTo(product.getPrice());
         assertThat(resultProductDTO.getCategory()).isEqualTo(product.getCategory());
         assertThat(resultProductDTO.isProductAvailable()).isEqualTo(product.isProductAvailable());
-        assertThat(resultProductDTO.getCount()).isEqualTo(product.getStockQuantity());
+        assertThat(resultProductDTO.getStockQuantity()).isEqualTo(product.getCount());
         assertThat(resultProductDTO.getImageName()).isEqualTo(product.getImageName());
         assertThat(resultProductDTO.getImageType()).isEqualTo(product.getImageType());
         assertThat(resultProductDTO.getImageData()).isEqualTo(product.getImageData());
@@ -109,7 +109,7 @@ class ProductServiceTest {
         assertThat(resultProductDTO.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
         assertThat(resultProductDTO.getCategory()).isEqualTo("Electronics");
         assertThat(resultProductDTO.isProductAvailable()).isTrue();
-        assertThat(resultProductDTO.getCount()).isEqualTo(10);
+        assertThat(resultProductDTO.getStockQuantity()).isEqualTo(10);
         assertThat(resultProductDTO.getImageName()).isEqualTo("image.jpg");
         assertThat(resultProductDTO.getImageType()).isEqualTo("image/jpeg");
         assertThat(resultProductDTO.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
@@ -143,7 +143,7 @@ class ProductServiceTest {
         assertThat(resultProductDTO.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
         assertThat(resultProductDTO.getCategory()).isEqualTo("Electronics");
         assertThat(resultProductDTO.isProductAvailable()).isTrue();
-        assertThat(resultProductDTO.getCount()).isEqualTo(10);
+        assertThat(resultProductDTO.getStockQuantity()).isEqualTo(10);
         assertThat(resultProductDTO.getImageName()).isEqualTo("image.jpg");
         assertThat(resultProductDTO.getImageType()).isEqualTo("image/jpeg");
         assertThat(resultProductDTO.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
@@ -183,7 +183,7 @@ class ProductServiceTest {
         assertThat(resultDeletedProductDTO.getPrice()).isEqualTo(resultAddedProductDTO.getPrice());
         assertThat(resultDeletedProductDTO.getCategory()).isEqualTo(resultAddedProductDTO.getCategory());
         assertThat(resultDeletedProductDTO.isProductAvailable()).isEqualTo(resultAddedProductDTO.isProductAvailable());
-        assertThat(resultDeletedProductDTO.getCount()).isEqualTo(resultAddedProductDTO.getCount());
+        assertThat(resultDeletedProductDTO.getStockQuantity()).isEqualTo(resultAddedProductDTO.getStockQuantity());
         assertThat(resultDeletedProductDTO.getImageName()).isEqualTo(resultAddedProductDTO.getImageName());
         assertThat(resultDeletedProductDTO.getImageType()).isEqualTo(resultAddedProductDTO.getImageType());
         assertThat(resultDeletedProductDTO.getImageData()).isEqualTo(resultAddedProductDTO.getImageData());

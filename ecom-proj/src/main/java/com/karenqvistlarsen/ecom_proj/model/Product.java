@@ -23,7 +23,7 @@ public class Product {
     private String category;
     private Date releaseDate;
     private boolean productAvailable;
-    private int stockQuantity;
+    private int count;
     private String imageName;
     private String imageType;
     @Lob
