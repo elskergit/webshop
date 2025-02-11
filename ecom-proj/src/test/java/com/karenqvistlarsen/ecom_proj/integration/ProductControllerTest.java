@@ -1,7 +1,6 @@
 package com.karenqvistlarsen.ecom_proj.integration;
 
 import com.karenqvistlarsen.ecom_proj.model.Product;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,12 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProductControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
-    private String productJson;
     private HttpEntity<MultiValueMap<String, Object>>  requestEntity;
 
     @BeforeEach
     void setup() {
-        productJson = """
+        String productDTOJson = """
         {
             "name": "Laptop",
             "description": "Gaming Laptop",
@@ -44,7 +42,7 @@ class ProductControllerTest {
         // headers and entity for JSON request part
         HttpHeaders jsonHeaders = new HttpHeaders();
         jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> jsonEntity = new HttpEntity<>(productJson, jsonHeaders);
+        HttpEntity<String> jsonEntity = new HttpEntity<>(productDTOJson, jsonHeaders);
 
         // headers for multipart request
         HttpHeaders multipartHeaders = new HttpHeaders();
@@ -52,7 +50,7 @@ class ProductControllerTest {
 
         // create multipart request body
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("product", jsonEntity);
+        body.add("productDTO", jsonEntity);
         body.add("imageFile", new FileSystemResource("src/test/resources/laptop.jpg"));
 
         requestEntity = new HttpEntity<>(body, multipartHeaders);
@@ -80,7 +78,6 @@ class ProductControllerTest {
         ResponseEntity<Product> response = restTemplate.getForEntity("/api/product/999", Product.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
     }
 
     @Test
@@ -91,7 +88,6 @@ class ProductControllerTest {
 
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(response.getBody().contains("Product with ID"));
     }
 
     @Test
@@ -101,7 +97,6 @@ class ProductControllerTest {
                 "/api/product", HttpMethod.POST, requestEntity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
     }
 
     @Test

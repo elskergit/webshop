@@ -3,6 +3,8 @@ package com.karenqvistlarsen.ecom_proj.service;
 import com.karenqvistlarsen.ecom_proj.exception.FileProcessingException;
 import com.karenqvistlarsen.ecom_proj.exception.ProductNotFoundException;
 import com.karenqvistlarsen.ecom_proj.model.Product;
+import com.karenqvistlarsen.ecom_proj.model.ProductDTO;
+import com.karenqvistlarsen.ecom_proj.model.ProductDTOMapper;
 import com.karenqvistlarsen.ecom_proj.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,59 +13,81 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ProductService {
 
     private final ProductRepository repo;
+    private final ProductDTOMapper productDTOMapper;
 
-    public List<Product> getAllProducts() {
-        return repo.findAll();
+    public List<ProductDTO> getAllProducts() {
+        return repo.findAll()
+                .stream()
+                .map(productDTOMapper::productToProductDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Product> getProductById(int id) {
+    public Optional<ProductDTO> getProductById(int id) {
         return Optional.ofNullable(repo.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product with ID " + id + " not found")));
+                .map(productDTOMapper::productToProductDTO)
+                .orElseThrow(() -> new ProductNotFoundException("Product with id [%s] not found".formatted(id))));
     }
 
-    public Optional<Product> addProduct(Product product, MultipartFile imageFile) {
+    public Optional<ProductDTO> addProduct(ProductDTO productDTO, MultipartFile imageFile) {
         try {
-            // Set product's image properties
-            product.setImageName(imageFile.getOriginalFilename());
-            product.setImageType(imageFile.getContentType());
-            product.setImageData(imageFile.getBytes());
+            productDTO.setImageName(imageFile.getOriginalFilename());
+            productDTO.setImageType(imageFile.getContentType());
+            productDTO.setImageData(imageFile.getBytes());
 
-            // Save and return the product wrapped in Optional
-            repo.save(product);
-            return Optional.of(product);
-        } catch (IOException e) {
-            // Handle the IOException by throwing a custom exception
-            throw new FileProcessingException("File processing error: " + e.getMessage(), e);
-        }
-    }
+            // convert and save entity
+            Product product = productDTOMapper.productDTOToProduct(productDTO);
+            Product savedProduct = repo.save(product);
 
-    public Optional<Product> updateProduct(int id, MultipartFile imageFile) {
-        try {
-            Product product = getProductById(id).orElseThrow(() ->
-                    new ProductNotFoundException("Product with ID " + id + " not found"));
+            // convert back to DTO and return
+            ProductDTO savedProductDTO = productDTOMapper.productToProductDTO(savedProduct);
 
-            product.setImageData(imageFile.getBytes());
-            product.setImageName(imageFile.getOriginalFilename());
-            product.setImageType(imageFile.getContentType());
-
-            return Optional.of(repo.save(product));
+            return Optional.of(savedProductDTO);
         } catch (IOException e) {
             throw new FileProcessingException("File processing error: " + e.getMessage(), e);
         }
     }
 
-    public Optional<Product> deleteProduct(int id) {
-        Product product = repo.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product with ID " + id + " not found"));
+    public Optional<ProductDTO> updateProduct(int id, MultipartFile imageFile) {
+        try {
+            ProductDTO existingProductDTO = getProductById(id).orElseThrow(
+                    () -> new ProductNotFoundException("Product with id [%s] not found".formatted(id))
+            );
+
+            existingProductDTO.setImageName(imageFile.getOriginalFilename());
+            existingProductDTO.setImageType(imageFile.getContentType());
+            existingProductDTO.setImageData(imageFile.getBytes());
+
+            // convert DTO to entity and save updated product
+            Product updatedProduct = productDTOMapper.productDTOToProduct(existingProductDTO);
+            Product savedProduct = repo.save(updatedProduct);
+
+            // convert back to DTO and return
+            return Optional.of(productDTOMapper.productToProductDTO(savedProduct));
+        } catch (IOException e) {
+            throw new FileProcessingException("File processing error: " + e.getMessage(), e);
+        }
+    }
+
+    public Optional<ProductDTO> deleteProduct(int id) {
+        ProductDTO existingProductDTO = getProductById(id).orElseThrow(
+                () -> new ProductNotFoundException("Product with id [%s] not found".formatted(id))
+        );
 
         repo.deleteById(id);
+        return Optional.of(existingProductDTO);
+    }
 
-        return Optional.of(product);
+    public Optional<ProductDTO> getImageByProductId(int id) {
+        ProductDTO productDTO = getProductById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product with id [%s] not found".formatted(id)));
+
+        return Optional.ofNullable(productDTO);
     }
 }

@@ -1,19 +1,24 @@
 package com.karenqvistlarsen.ecom_proj.unit;
 
 import com.karenqvistlarsen.ecom_proj.model.Product;
+import com.karenqvistlarsen.ecom_proj.model.ProductDTO;
+import com.karenqvistlarsen.ecom_proj.model.ProductDTOMapper;
 import com.karenqvistlarsen.ecom_proj.repository.ProductRepository;
 import com.karenqvistlarsen.ecom_proj.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,113 +32,161 @@ class ProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private MultipartFile imageFile;
+    @Spy
+    private ProductDTOMapper productDTOMapper = Mappers.getMapper(ProductDTOMapper.class);
     private Product product;
+    private ProductDTO productDTO;
+    private byte[] imageData;
+    private String fileName;
+    private String contentType;
 
     @BeforeEach
-    void setup() throws IOException {
+    void setup() {
         Date date = new Date();
         product = new Product(1, "Laptop", "Gaming Laptop", "Dell",
                 new BigDecimal("1200.00"), "Electronics", date,
+                true, 10, "image.jpg", "image/jpeg", new byte[]{1, 2, 3, 4},
+                "Worker1");
+
+        productDTO = new ProductDTO(1, "Laptop", "Gaming Laptop", "Dell",
+                new BigDecimal("1200.00"), "Electronics", new Date(),
                 true, 10, "image.jpg", "image/jpeg", new byte[]{1, 2, 3, 4});
 
-        // mock image behavior
-        byte[] imageData = new byte[]{1, 2, 3, 4};
-        String fileName = "image.jpg";
-        String contentType = "image/jpeg";
+        imageData = new byte[]{1, 2, 3, 4};
+        fileName = "image.jpg";
+        contentType = "image/jpeg";
+    }
 
+    @Test
+    void shouldReturnAllProducts() {
+        List<Product> productList = List.of(product);
+        when(productRepository.findAll()).thenReturn(productList);
+
+        List<ProductDTO> result = productService.getAllProducts();
+
+        assertThat(result)
+                .withFailMessage("Expected a list with one product, but got a different size")
+                .hasSize(1);
+
+        ProductDTO resultProductDTO = result.get(0);
+
+        assertThat(resultProductDTO.getId()).isEqualTo(product.getId());
+        assertThat(resultProductDTO.getName()).isEqualTo(product.getName());
+        assertThat(resultProductDTO.getDescription()).isEqualTo(product.getDescription());
+        assertThat(resultProductDTO.getBrand()).isEqualTo(product.getBrand());
+        assertThat(resultProductDTO.getPrice()).isEqualByComparingTo(product.getPrice());
+        assertThat(resultProductDTO.getCategory()).isEqualTo(product.getCategory());
+        assertThat(resultProductDTO.isProductAvailable()).isEqualTo(product.isProductAvailable());
+        assertThat(resultProductDTO.getCount()).isEqualTo(product.getStockQuantity());
+        assertThat(resultProductDTO.getImageName()).isEqualTo(product.getImageName());
+        assertThat(resultProductDTO.getImageType()).isEqualTo(product.getImageType());
+        assertThat(resultProductDTO.getImageData()).isEqualTo(product.getImageData());
+    }
+
+    @Test
+    void shouldAddProductWithImage() throws IOException {
+        // mock image behavior
         when(imageFile.getBytes()).thenReturn(imageData);
         when(imageFile.getOriginalFilename()).thenReturn(fileName);
         when(imageFile.getContentType()).thenReturn(contentType);
-    }
 
-
-    @Test
-    void shouldAddProductWithImage() {
         // assert product is correctly saved and returned
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Optional<Product> addedProduct = productService.addProduct(product, imageFile);
+        when(productDTOMapper.productToProductDTO(any(Product.class))).thenReturn(productDTO);
 
-        assertThat(addedProduct)
-                .withFailMessage("Expected product to be present, but it was empty")
+        Optional<ProductDTO> addedProductDTO = productService.addProduct(productDTO, imageFile);
+
+        assertThat(addedProductDTO)
+                .withFailMessage("Expected ProductDTO to be present, but it was empty")
                 .isPresent();
 
-        Product resultProduct = addedProduct.get();
+        ProductDTO resultProductDTO = addedProductDTO.get();
 
-        assertThat(resultProduct.getId()).isEqualTo(1);
-        assertThat(resultProduct.getName()).isEqualTo("Laptop");
-        assertThat(resultProduct.getDescription()).isEqualTo("Gaming Laptop");
-        assertThat(resultProduct.getBrand()).isEqualTo("Dell");
-        assertThat(resultProduct.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
-        assertThat(resultProduct.getCategory()).isEqualTo("Electronics");
-        assertThat(resultProduct.isProductAvailable()).isTrue();
-        assertThat(resultProduct.getStockQuantity()).isEqualTo(10);
-        assertThat(resultProduct.getImageName()).isEqualTo("image.jpg");
-        assertThat(resultProduct.getImageType()).isEqualTo("image/jpeg");
-        assertThat(resultProduct.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
+        assertThat(resultProductDTO.getId()).isEqualTo(1);
+        assertThat(resultProductDTO.getName()).isEqualTo("Laptop");
+        assertThat(resultProductDTO.getDescription()).isEqualTo("Gaming Laptop");
+        assertThat(resultProductDTO.getBrand()).isEqualTo("Dell");
+        assertThat(resultProductDTO.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
+        assertThat(resultProductDTO.getCategory()).isEqualTo("Electronics");
+        assertThat(resultProductDTO.isProductAvailable()).isTrue();
+        assertThat(resultProductDTO.getCount()).isEqualTo(10);
+        assertThat(resultProductDTO.getImageName()).isEqualTo("image.jpg");
+        assertThat(resultProductDTO.getImageType()).isEqualTo("image/jpeg");
+        assertThat(resultProductDTO.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
     }
 
 
     @Test
-    void shouldAddAndUpdateProductWithImage() {
+    void shouldAddAndUpdateProductWithImage() throws IOException {
+        // mock image behavior
+        when(imageFile.getBytes()).thenReturn(imageData);
+        when(imageFile.getOriginalFilename()).thenReturn(fileName);
+        when(imageFile.getContentType()).thenReturn(contentType);
+
         // mock repo findById method to return existing product
         when(productRepository.findById(1)).thenReturn(Optional.of(product));
 
         // assert product is correctly saved, updated and returned
         when(productRepository.save(any(Product.class))).thenReturn(product);
-        Optional<Product> updatedProduct = productService.updateProduct(product.getId(), imageFile);
+        Optional<ProductDTO> updatedProductDTO = productService.updateProduct(product.getId(), imageFile);
 
-        assertThat(updatedProduct)
+        assertThat(updatedProductDTO)
                 .withFailMessage("Expected product to be present, but it was empty")
                 .isPresent();
 
-        Product resultProduct = updatedProduct.get();
+        ProductDTO resultProductDTO = updatedProductDTO.get();
 
-        assertThat(resultProduct.getId()).isEqualTo(1);
-        assertThat(resultProduct.getName()).isEqualTo("Laptop");
-        assertThat(resultProduct.getDescription()).isEqualTo("Gaming Laptop");
-        assertThat(resultProduct.getBrand()).isEqualTo("Dell");
-        assertThat(resultProduct.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
-        assertThat(resultProduct.getCategory()).isEqualTo("Electronics");
-        assertThat(resultProduct.isProductAvailable()).isTrue();
-        assertThat(resultProduct.getStockQuantity()).isEqualTo(10);
-        assertThat(resultProduct.getImageName()).isEqualTo("image.jpg");
-        assertThat(resultProduct.getImageType()).isEqualTo("image/jpeg");
-        assertThat(resultProduct.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
+        assertThat(resultProductDTO.getId()).isEqualTo(1);
+        assertThat(resultProductDTO.getName()).isEqualTo("Laptop");
+        assertThat(resultProductDTO.getDescription()).isEqualTo("Gaming Laptop");
+        assertThat(resultProductDTO.getBrand()).isEqualTo("Dell");
+        assertThat(resultProductDTO.getPrice()).isEqualByComparingTo(new BigDecimal("1200.00"));
+        assertThat(resultProductDTO.getCategory()).isEqualTo("Electronics");
+        assertThat(resultProductDTO.isProductAvailable()).isTrue();
+        assertThat(resultProductDTO.getCount()).isEqualTo(10);
+        assertThat(resultProductDTO.getImageName()).isEqualTo("image.jpg");
+        assertThat(resultProductDTO.getImageType()).isEqualTo("image/jpeg");
+        assertThat(resultProductDTO.getImageData()).isEqualTo(new byte[]{1, 2, 3, 4});
     }
 
     @Test
-    void shouldAddAndDeleteProduct() {
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Optional<Product> addedProduct = productService.addProduct(product, imageFile);
+    void shouldAddAndDeleteProduct() throws IOException {
+        // mock image behavior
+        when(imageFile.getBytes()).thenReturn(imageData);
+        when(imageFile.getOriginalFilename()).thenReturn(fileName);
+        when(imageFile.getContentType()).thenReturn(contentType);
 
-        assertThat(addedProduct)
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Optional<ProductDTO> addedProductDTO = productService.addProduct(productDTO, imageFile);
+
+        assertThat(addedProductDTO)
                 .withFailMessage("Expected product to be present, but it was empty")
                 .isPresent();
 
         when(productRepository.findById(1)).thenReturn(Optional.of(product));
         doNothing().when(productRepository).deleteById(1);
 
-        Optional<Product> deletedProduct = productService.deleteProduct(1);
+        Optional<ProductDTO> deletedProductDTO = productService.deleteProduct(1);
 
-        assertThat(deletedProduct)
+        assertThat(deletedProductDTO)
                 .withFailMessage("Expected product to be present, but it was empty")
                 .isPresent();
 
-        Product resultDeletedProduct = deletedProduct.get();
-        Product resultAddedProduct = deletedProduct.get();
+        ProductDTO resultDeletedProductDTO = deletedProductDTO.get();
+        ProductDTO resultAddedProductDTO = addedProductDTO.get();
 
         // assert that deleted product is equal to added product
-        assertThat(resultDeletedProduct.getId()).isEqualTo(resultAddedProduct.getId());
-        assertThat(resultDeletedProduct.getName()).isEqualTo(resultAddedProduct.getName());
-        assertThat(resultDeletedProduct.getDescription()).isEqualTo(resultAddedProduct.getDescription());
-        assertThat(resultDeletedProduct.getBrand()).isEqualTo(resultAddedProduct.getBrand());
-        assertThat(resultDeletedProduct.getPrice()).isEqualTo(resultAddedProduct.getPrice());
-        assertThat(resultDeletedProduct.getCategory()).isEqualTo(resultAddedProduct.getCategory());
-        assertThat(resultDeletedProduct.isProductAvailable()).isEqualTo(resultAddedProduct.isProductAvailable());
-        assertThat(resultDeletedProduct.getStockQuantity()).isEqualTo(resultAddedProduct.getStockQuantity());
-        assertThat(resultDeletedProduct.getImageName()).isEqualTo(resultAddedProduct.getImageName());
-        assertThat(resultDeletedProduct.getImageType()).isEqualTo(resultAddedProduct.getImageType());
-        assertThat(resultDeletedProduct.getImageData()).isEqualTo(resultAddedProduct.getImageData());
+        assertThat(resultDeletedProductDTO.getId()).isEqualTo(resultAddedProductDTO.getId());
+        assertThat(resultDeletedProductDTO.getName()).isEqualTo(resultAddedProductDTO.getName());
+        assertThat(resultDeletedProductDTO.getDescription()).isEqualTo(resultAddedProductDTO.getDescription());
+        assertThat(resultDeletedProductDTO.getBrand()).isEqualTo(resultAddedProductDTO.getBrand());
+        assertThat(resultDeletedProductDTO.getPrice()).isEqualTo(resultAddedProductDTO.getPrice());
+        assertThat(resultDeletedProductDTO.getCategory()).isEqualTo(resultAddedProductDTO.getCategory());
+        assertThat(resultDeletedProductDTO.isProductAvailable()).isEqualTo(resultAddedProductDTO.isProductAvailable());
+        assertThat(resultDeletedProductDTO.getCount()).isEqualTo(resultAddedProductDTO.getCount());
+        assertThat(resultDeletedProductDTO.getImageName()).isEqualTo(resultAddedProductDTO.getImageName());
+        assertThat(resultDeletedProductDTO.getImageType()).isEqualTo(resultAddedProductDTO.getImageType());
+        assertThat(resultDeletedProductDTO.getImageData()).isEqualTo(resultAddedProductDTO.getImageData());
     }
 }
 
