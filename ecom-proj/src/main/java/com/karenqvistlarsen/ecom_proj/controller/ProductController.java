@@ -33,7 +33,7 @@ public class ProductController {
         return service.addProduct(productDTO, imageFile).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.internalServerError().build());
     }
 
-    @GetMapping("/product/{productId}/image")
+    @GetMapping("/product/{id}/image")
     public ResponseEntity<byte[]> getImageByProductId(@PathVariable int id) {
         return service.deleteProduct(id)
                 .map(productDTO -> ResponseEntity.ok()
