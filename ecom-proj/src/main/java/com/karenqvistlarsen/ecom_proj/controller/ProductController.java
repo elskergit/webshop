@@ -26,23 +26,14 @@ public class ProductController {
     @GetMapping("/product/{id}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable int id) {
         Optional<ProductDTO> productDTOOptional = service.getProductById(id);
-        if (productDTOOptional.isPresent()) {
-            return ResponseEntity.ok(productDTOOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/product")
     public ResponseEntity<ProductDTO> addProduct(@RequestPart ProductDTO productDTO,
                                               @RequestPart MultipartFile imageFile) {
         Optional<ProductDTO> productDTOOptional = service.addProduct(productDTO, imageFile);
-        if (productDTOOptional.isPresent()) {
-            return ResponseEntity.ok(productDTOOptional.get());
-        }
-        else {
-            return ResponseEntity.internalServerError().build();
-        }
+        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.internalServerError().build());
     }
 
     @GetMapping("/product/{productId}/image")
@@ -61,20 +52,12 @@ public class ProductController {
                                                  @RequestPart ProductDTO productDTO,
                                                  @RequestPart(required = false) MultipartFile imageFile) {
         Optional<ProductDTO> productDTOOptional = service.updateProduct(id, imageFile);
-        if (productDTOOptional.isPresent()) {
-            return ResponseEntity.ok(productDTOOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/product/{id}")
     public ResponseEntity<ProductDTO> deleteProduct(@PathVariable int id) {
         Optional<ProductDTO> productDTOOptional = service.deleteProduct(id);
-        if (productDTOOptional.isPresent()) {
-            return ResponseEntity.ok(productDTOOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
