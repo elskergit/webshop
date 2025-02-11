@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -25,22 +24,18 @@ public class ProductController {
 
     @GetMapping("/product/{id}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable int id) {
-        Optional<ProductDTO> productDTOOptional = service.getProductById(id);
-        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return service.getProductById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/product")
     public ResponseEntity<ProductDTO> addProduct(@RequestPart ProductDTO productDTO,
                                               @RequestPart MultipartFile imageFile) {
-        Optional<ProductDTO> productDTOOptional = service.addProduct(productDTO, imageFile);
-        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.internalServerError().build());
+        return service.addProduct(productDTO, imageFile).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.internalServerError().build());
     }
 
     @GetMapping("/product/{productId}/image")
     public ResponseEntity<byte[]> getImageByProductId(@PathVariable int id) {
-        Optional<ProductDTO> productDTOOptional = service.getImageByProductId(id);
-
-        return productDTOOptional
+        return service.deleteProduct(id)
                 .map(productDTO -> ResponseEntity.ok()
                         .contentType(MediaType.valueOf(productDTO.getImageType()))
                         .body(productDTO.getImageData()))
@@ -51,13 +46,11 @@ public class ProductController {
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable int id,
                                                  @RequestPart ProductDTO productDTO,
                                                  @RequestPart(required = false) MultipartFile imageFile) {
-        Optional<ProductDTO> productDTOOptional = service.updateProduct(id, imageFile);
-        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return service.deleteProduct(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/product/{id}")
     public ResponseEntity<ProductDTO> deleteProduct(@PathVariable int id) {
-        Optional<ProductDTO> productDTOOptional = service.deleteProduct(id);
-        return productDTOOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return service.deleteProduct(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
