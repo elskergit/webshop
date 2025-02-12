@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleProductNotFoundException(ProductNotFoundException e) {
+    @ExceptionHandler(ParcelNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleProductNotFoundException(ParcelNotFoundException e) {
         ApiErrorResponse response = new ApiErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),

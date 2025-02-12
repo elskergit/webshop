@@ -27,12 +27,16 @@ const AddProduct = () => {
   const submitHandler = (event) => {
     event.preventDefault();
     const formData = new FormData();
+    
+    // Append the image file
     formData.append("imageFile", image);
-    formData.append(
-      "product",
-      new Blob([JSON.stringify(product)], { type: "application/json" })
-    );
-
+  
+    // Append the productDTO as individual form parts (instead of a Blob)
+    Object.keys(product).forEach(key => {
+      formData.append(key, product[key]);
+    });
+  
+    // Make the POST request with multipart data
     axios
       .post("http://localhost:8080/api/product", formData, {
         headers: {
@@ -48,6 +52,7 @@ const AddProduct = () => {
         alert("Error adding product");
       });
   };
+  
 
   return (
     <div className="container">
