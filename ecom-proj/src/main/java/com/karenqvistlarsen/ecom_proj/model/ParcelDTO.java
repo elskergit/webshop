@@ -11,8 +11,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ParcelDTO {
     private int id;
-    private String dest;
-    private String source;
+    private String DestinationAddress;
+    private String pickUpAddress;
     private LocalDate pickUpDate;
     private String serviceTier;
     private Double width;

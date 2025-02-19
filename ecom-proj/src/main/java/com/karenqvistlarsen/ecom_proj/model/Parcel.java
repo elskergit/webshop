@@ -15,8 +15,8 @@ public class Parcel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String dest;
-    private String source;
+    private String DestinationAddress;
+    private String pickUpAddress;
     private LocalDate pickUpDate;
     private String serviceTier;
     private Double width;

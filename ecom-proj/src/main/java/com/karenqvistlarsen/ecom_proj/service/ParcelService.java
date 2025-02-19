@@ -35,6 +35,7 @@ public class ParcelService {
 
     public Optional<ParcelDTO> addParcel(ParcelDTO parcelDTO) {
         Parcel parcel = parcelDTOMapper.parcelDTOToParcel(parcelDTO);
+        parcel.setRequestPosted(LocalDate.now());
         calculateParcelDetails(parcel);
         Parcel savedParcel = repo.save(parcel);
 
@@ -45,8 +46,8 @@ public class ParcelService {
 
     public Optional<ParcelDTO> updateParcel(int id, ParcelDTO parcelDTO) {
         return repo.findById(id).map(existingParcel -> {
-            existingParcel.setDest(parcelDTO.getDest());
-            existingParcel.setSource(parcelDTO.getSource());
+            existingParcel.setDestinationAddress(parcelDTO.getDestinationAddress());
+            existingParcel.setPickUpAddress(parcelDTO.getPickUpAddress());
             existingParcel.setPickUpDate(parcelDTO.getPickUpDate());
             existingParcel.setServiceTier(parcelDTO.getServiceTier());
             existingParcel.setWidth(parcelDTO.getWidth());
@@ -68,6 +69,12 @@ public class ParcelService {
 
         repo.deleteById(id);
         return Optional.of(existingParcelDTO);
+    }
+
+    public Optional<ParcelDTO> estimateParcel(ParcelDTO parcelDTO) {
+         Parcel parcel = parcelDTOMapper.parcelDTOToParcel(parcelDTO);
+         calculateParcelDetails(parcel);
+         return Optional.of(parcelDTOMapper.parcelToParcelDTO(parcel));
     }
 
     private void calculateParcelDetails(Parcel parcel) {

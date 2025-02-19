@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api")
 @AllArgsConstructor
 public class ParcelController {
@@ -28,6 +28,11 @@ public class ParcelController {
     @PostMapping("/parcel")
     public ResponseEntity<ParcelDTO> addParcel(@RequestBody ParcelDTO parcelDTO) {
         return service.addParcel(parcelDTO).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.internalServerError().build());
+    }
+
+    @PostMapping("/parcel/estimate")
+    public ResponseEntity<ParcelDTO> estimateParcel(@RequestBody ParcelDTO parcelDTO) {
+        return service.estimateParcel(parcelDTO).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     @PutMapping("/parcel/{id}")

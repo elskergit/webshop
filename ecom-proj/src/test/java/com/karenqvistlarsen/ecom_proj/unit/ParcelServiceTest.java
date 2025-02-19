@@ -80,8 +80,8 @@ class ParcelServiceTest {
         ParcelDTO resultParcelDTO = result.get(0);
 
         assertThat(resultParcelDTO.getId()).isEqualTo(parcel.getId());
-        assertThat(resultParcelDTO.getDest()).isEqualTo(parcel.getDest());
-        assertThat(resultParcelDTO.getSource()).isEqualTo(parcel.getSource());
+        assertThat(resultParcelDTO.getDestinationAddress()).isEqualTo(parcel.getDestinationAddress());
+        assertThat(resultParcelDTO.getPickUpAddress()).isEqualTo(parcel.getPickUpAddress());
         assertThat(resultParcelDTO.getPickUpDate()).isEqualTo(parcel.getPickUpDate());
         assertThat(resultParcelDTO.getServiceTier()).isEqualTo(parcel.getServiceTier());
         assertThat(resultParcelDTO.getWidth()).isEqualTo(parcel.getWidth());
@@ -106,8 +106,8 @@ class ParcelServiceTest {
         ParcelDTO resultParcelDTO = addedParcelDTO.get();
 
         assertThat(resultParcelDTO.getId()).isEqualTo(parcel.getId());
-        assertThat(resultParcelDTO.getDest()).isEqualTo(parcel.getDest());
-        assertThat(resultParcelDTO.getSource()).isEqualTo(parcel.getSource());
+        assertThat(resultParcelDTO.getDestinationAddress()).isEqualTo(parcel.getDestinationAddress());
+        assertThat(resultParcelDTO.getPickUpAddress()).isEqualTo(parcel.getPickUpAddress());
         assertThat(resultParcelDTO.getPickUpDate()).isEqualTo(parcel.getPickUpDate());
         assertThat(resultParcelDTO.getServiceTier()).isEqualTo(parcel.getServiceTier());
         assertThat(resultParcelDTO.getWidth()).isEqualTo(parcel.getWidth());
@@ -133,8 +133,8 @@ class ParcelServiceTest {
         ParcelDTO resultParcelDTO = returnedUpdatedParcelDTO.get();
 
         assertThat(resultParcelDTO.getId()).isEqualTo(updatedParcel.getId());
-        assertThat(resultParcelDTO.getDest()).isEqualTo(updatedParcel.getDest());
-        assertThat(resultParcelDTO.getSource()).isEqualTo(updatedParcel.getSource());
+        assertThat(resultParcelDTO.getDestinationAddress()).isEqualTo(parcel.getDestinationAddress());
+        assertThat(resultParcelDTO.getPickUpAddress()).isEqualTo(parcel.getPickUpAddress());
         assertThat(resultParcelDTO.getPickUpDate()).isEqualTo(updatedParcel.getPickUpDate());
         assertThat(resultParcelDTO.getServiceTier()).isEqualTo(updatedParcel.getServiceTier());
         assertThat(resultParcelDTO.getWidth()).isEqualTo(updatedParcel.getWidth());
@@ -167,8 +167,8 @@ class ParcelServiceTest {
         ParcelDTO resultAddedParcelDTO = addedParcelDTO.get();
 
         assertThat(resultDeletedParcelDTO.getId()).isEqualTo(resultAddedParcelDTO.getId());
-        assertThat(resultDeletedParcelDTO.getDest()).isEqualTo(resultAddedParcelDTO.getDest());
-        assertThat(resultDeletedParcelDTO.getSource()).isEqualTo(resultAddedParcelDTO.getSource());
+        assertThat(resultDeletedParcelDTO.getDestinationAddress()).isEqualTo(resultAddedParcelDTO.getDestinationAddress());
+        assertThat(resultDeletedParcelDTO.getPickUpAddress()).isEqualTo(resultAddedParcelDTO.getPickUpAddress());
         assertThat(resultDeletedParcelDTO.getPickUpDate()).isEqualTo(resultAddedParcelDTO.getPickUpDate());
         assertThat(resultDeletedParcelDTO.getServiceTier()).isEqualTo(resultAddedParcelDTO.getServiceTier());
         assertThat(resultDeletedParcelDTO.getWidth()).isEqualTo(resultAddedParcelDTO.getWidth());
