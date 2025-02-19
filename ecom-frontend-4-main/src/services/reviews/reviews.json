@@ -1,0 +1,32 @@
+[
+    {
+      "id": 1,
+      "name": "John Doe",
+      "rating": 5.0,
+      "text": "I couldn't believe how fast my parcel arrived."
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "rating": 5.0,
+      "text": "Incredible experience! The service was reliable and safe. Highly recommended."
+    },
+    {
+      "id": 3,
+      "name": "Eric Aubry",
+      "rating": 5.0,
+      "text": "DSV - Go home"
+    },
+    {
+      "id": 4,
+      "name": "Karen Qvist",
+      "rating": 1.0,
+      "text": "Package teleported onto my face"
+    },
+    {
+      "id": 5,
+      "name": "Anders Lind",
+      "rating": 3.0,
+      "text": "The service is really bad... However, the website sort of makes up for it due to being super nice and responsive 10/10"
+    }
+]

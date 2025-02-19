@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@toolpad/core": "^0.12.0",
+    "swiper": "^11.2.3"
+  }
+}
