@@ -4,12 +4,12 @@ import { List, ListItem, ListItemText } from '@mui/material';
 
 import React, { useContext, useState } from "react";
 import { ReviewsContextProvider } from '../../services/reviews/context';
-import { LoadingComponent } from '../../components/loading.component';
+import { LoadingComponent } from '../../components/loadingComponent';
 import { ReviewSwiper } from './components/review-swiper.component';
 
 import { ReviewsContext } from '../../services/reviews/context';
 import { Description } from './components/description.component';
-import { AddReviewForm } from './add-review';
+import { AddReviewForm } from './addReview';
 
 export function AboutPage() {
   return (

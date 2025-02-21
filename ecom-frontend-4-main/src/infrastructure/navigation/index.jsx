@@ -21,17 +21,22 @@ export function Navigation() {
     <Avatar src={logo2} alt="Logo" sx={{ mr: 2, width: 300, height: "auto", borderRadius: 0 }} />
     <Avatar src={slogan2} alt="slogan" sx={{ width: 250, height: "auto", mt: 5,borderRadius: 0 }} />
   </Box>
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <Button component={Link} to="/" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/") ? "bold" : "normal", }}>
-        Home
-      </Button>
-      <Button component={Link} to="/about" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/about") ? "bold" : "normal", }}>
-        About
-      </Button>
-      <Button component={Link} to="/contact" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/contact") ? "bold" : "normal", }}>
-        Contact
-      </Button>
-    </Box>
+  <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Button component={Link} to="/add-parcel" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/add-parcel") ? "bold" : "normal", }}>
+      Add Parcel
+    </Button>
+  </Box>
+  <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Button component={Link} to="/" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/") ? "bold" : "normal", }}>
+      Home
+    </Button>
+    <Button component={Link} to="/about" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/about") ? "bold" : "normal", }}>
+      About
+    </Button>
+    <Button component={Link} to="/contact" sx={{ color: theme.palette.text.secondary, fontWeight: isActive("/contact") ? "bold" : "normal", }}>
+      Contact
+    </Button>
+  </Box>
   </Toolbar>
 </AppBar>
 

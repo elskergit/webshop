@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Navigation } from "./infrastructure/navigation";
 import { theme } from "./infrastructure/theme/theme";
 import { ThemeProvider } from "@mui/material/styles";
-import {WizardContact} from "./components/contact"
-import { AboutPage } from "./pages/about/about.page";
+import { WizardContact } from "./pages/contact/contactPage"
+import { AboutPage } from "./pages/about/aboutPage";
+import { AddParcel } from "./pages/addParcel/addParcelPage";
+import { HomePage } from "./pages/home/homePage";
 
-function Services() { return <h2>Services Page</h2>; }
 
 function App() {
   return (
@@ -14,9 +15,9 @@ function App() {
         <BrowserRouter>
           <Navigation />
           <Routes>
-            <Route path="/" element={<Services />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/add-parcel" element={<AddParcel />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<WizardContact />} />
           </Routes>
         </BrowserRouter>
